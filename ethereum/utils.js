@@ -2,7 +2,7 @@ import { randomBytes } from "crypto";
 import "secp256k1";
 import "sjcl";
 import "web3";
-import { handleCatch } from "~/config/utils";
+import { handleCatch } from "../config/utils";
 
 // TODO: Need to test these utils with cypress
 
