@@ -3,14 +3,7 @@ import moment from "moment";
 import { UPVOTE, DOWNVOTE } from "~/config/constants";
 import { doesNotExist, getNestedValue } from "~/config/utils";
 
-export { logFetchError } from "~/config/utils";
-
-const FETCH_ERROR_MESSAGE = "Fetch error caught in promise";
-
-export function handleCatch(err) {
-  console.log(FETCH_ERROR_MESSAGE, err);
-  return err;
-}
+export { handleCatch, logFetchError } from "~/config/utils";
 
 export function transformVote(vote) {
   if (!doesNotExist(vote) && vote !== "null") {

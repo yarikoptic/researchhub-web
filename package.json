@@ -12,9 +12,11 @@
   "dependencies": {
     "@quantfive/js-web-config": "latest",
     "@sentry/browser": "^5.9.1",
+    "@truffle/hdwallet-provider": "^1.0.25",
     "@zeit/next-css": "^1.0.1",
     "@zeit/next-source-maps": "^0.0.3",
     "aphrodite": "^2.4.0",
+    "bip39": "^3.0.2",
     "diff": "^4.0.1",
     "immutable": "^4.0.0-rc.12",
     "isomorphic-unfetch": "^3.0.0",
@@ -52,8 +54,11 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
+    "secp256k1": "^3.7.1",
+    "sjcl": "^1.0.8",
     "slate": "^0.47.8",
-    "slate-react": "^0.22.9"
+    "slate-react": "^0.22.9",
+    "web3": "^1.2.4"
   },
   "devDependencies": {
     "cypress": "^3.4.1",
