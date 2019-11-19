@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import "secp256k1";
+import secp256k1 from "secp256k1";
 import "sjcl";
 import "web3";
 import { handleCatch } from "../config/utils";
