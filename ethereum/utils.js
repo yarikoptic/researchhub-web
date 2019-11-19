@@ -17,9 +17,9 @@ export const generateKeypair = () => {
     privateKey = randomBytes(32);
   }
 
-  const publicKey = secp256k1.publicKeyCreate(privKey); // compressed
+  const publicKey = secp256k1.publicKeyCreate(privateKey); // compressed
 
-  const signed = secp256k1.sign(msg, privKey);
+  const signed = secp256k1.sign(message, privateKey);
   const signatureIsVerified = secp256k1.verify(
     message,
     signed.signature,
