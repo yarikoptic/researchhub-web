@@ -1,8 +1,10 @@
+import * as bip39 from "bip39";
 import { randomBytes } from "crypto";
 import secp256k1 from "secp256k1";
-import "sjcl";
-import "web3";
-import { handleCatch } from "../config/utils";
+import { encrypt, decrypt } from "sjcl";
+
+import { handleCatch } from "~/config/utils";
+import API from "~/config/api";
 
 // TODO: Need to test these utils with cypress
 
@@ -99,9 +101,9 @@ export const checkMnemonicIsValid = (mnemonic) => {
 };
 
 export const encryptWithPassword = (password, data) => {
-  sjcl.encrypt(password, data);
+  encrypt(password, data);
 };
 
 export const decryptWithPassword = (password, encryptedData) => {
-  sjcl.decrypt(password, encryptedData);
+  decrypt(password, encryptedData);
 };

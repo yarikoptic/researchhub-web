@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { StyleSheet, css } from "aphrodite";
 import { useEffect, useState } from "react";
@@ -16,6 +17,10 @@ import AuthorAvatar from "~/components/AuthorAvatar";
 import ShareModal from "~/components/ShareModal";
 import AvatarUpload from "~/components/AvatarUpload";
 import Reputation from "~/components/Reputation";
+
+const WalletNoSSR = dynamic(() => import("~/components/Wallet"), {
+  ssr: false,
+});
 
 // Config
 import colors from "~/config/themes/colors";
@@ -402,6 +407,7 @@ const AuthorPage = (props) => {
         title={`${authorName} on Research Hub`}
         description={`${authorName} on Research Hub`}
       />
+      <WalletNoSSR />
       <ComponentWrapper>
         <div className={css(styles.profileContainer)}>
           <div
