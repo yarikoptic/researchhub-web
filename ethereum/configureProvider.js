@@ -1,6 +1,7 @@
 import HDWalletProvider from "@truffle/hdwallet-provider";
-import { createWallet, getUserWalletPassphrase } from "./utils";
 import Web3 from "web3";
+
+import { createWallet, getUserWalletPassphrase } from "./wallet";
 /*
 
 TODO
