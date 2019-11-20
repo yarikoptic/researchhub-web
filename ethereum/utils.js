@@ -3,8 +3,8 @@ import { randomBytes } from "crypto";
 import secp256k1 from "secp256k1";
 import { encrypt, decrypt } from "sjcl";
 
-import { handleCatch } from "~/config/utils";
-import API from "~/config/api";
+import API from "../config/api";
+import { handleCatch } from "../config/utils";
 
 // TODO: Need to test these utils with cypress
 
