@@ -7,6 +7,7 @@ import { encrypt, decrypt } from "sjcl";
 
 /**
  * Returns a randomly generated ECDSA keypair based on the secp256k1 curve.
+ * @returns {Uint8Array} publicKey
  */
 export const generateKeypair = () => {
   const message = randomBytes(32);
@@ -26,7 +27,6 @@ export const generateKeypair = () => {
   );
 
   if (signatureIsVerified === true) {
-    console.log(publicKey);
     return publicKey;
   } else {
     throw Error("Failed to generate key pair");
@@ -56,9 +56,9 @@ export const checkMnemonicIsValid = (mnemonic) => {
 };
 
 export const encryptWithPassword = (password, data) => {
-  encrypt(password, data);
+  return encrypt(password, data);
 };
 
 export const decryptWithPassword = (password, encryptedData) => {
-  decrypt(password, encryptedData);
+  return decrypt(password, encryptedData);
 };
