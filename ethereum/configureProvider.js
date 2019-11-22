@@ -2,6 +2,12 @@ import HDWalletProvider from "@truffle/hdwallet-provider";
 import Web3 from "web3";
 
 import { createWallet, getUserWalletPassphrase } from "./wallet";
+
+const INFURA_URL =
+  process.env.NODE_ENV === "development"
+    ? process.env.INFURA_RINKEBY_ENDPOINT
+    : process.env.INFURA_MAINNET_ENDPOINT;
+
 /*
 
 TODO
@@ -13,7 +19,7 @@ TODO
 
  */
 
-export const configureWeb3 = async (walletType, options = {}) => {
+export const configureW3 = async (walletType, options = {}) => {
   let w3 = null;
 
   switch (walletType) {
@@ -30,10 +36,10 @@ export const configureWeb3 = async (walletType, options = {}) => {
       break;
   }
 
-  if (w3 !== null) {
-    // TODO: Store it in redux
+  if (w3) {
+    return w3;
   } else {
-    throw Error("Faile to configure web3");
+    throw Error("Failed to configure web3");
   }
 };
 
@@ -67,10 +73,13 @@ async function enableMetaMask(ethereum) {
 }
 
 export const configureLocalWallet = async (userPassword) => {
-  // TODO: Error handling for failures
-  createWallet(userPassword);
-  const mnemonic = await getUserWalletPassphrase(userPassword);
-
-  provider = new HDWalletProvider(mnemonic, INFURA_URL); // TODO: Replace with Infura url
-  return Web3(provider);
+  let mnemonic;
+  try {
+    mnemonic = await getUserWalletPassphrase(userPassword);
+  } catch {
+    // TODO: Error handling for failures
+    createWallet(userPassword);
+  }
+  const provider = new HDWalletProvider(mnemonic, INFURA_URL); // TODO: Replace with Infura url
+  return new Web3(provider);
 };

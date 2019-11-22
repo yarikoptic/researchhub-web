@@ -16,6 +16,12 @@ module.exports = withPlugins(
     ],
   ],
   {
+    env: {
+      INFURA_RINKEBY_ENDPOINT:
+        "https://rinkeby.infura.io/v3/a7ccde5d021c48e1a0525dfd6e58490f",
+      INFURA_MAINNET_ENDPOINT:
+        "https://mainnet.infura.io/v3/a7ccde5d021c48e1a0525dfd6e58490f",
+    },
     webpack: (config) => {
       // Fixes npm packages that depend on `fs` module
       config.node = {

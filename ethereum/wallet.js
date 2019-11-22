@@ -1,6 +1,6 @@
 import API from "../config/api";
 import { handleCatch } from "../config/utils";
-
+import * as shims from "./shims";
 import {
   checkMnemonicIsValid,
   decryptWithPassword,
@@ -38,10 +38,10 @@ export const getUserWalletPassphrase = async (password) => {
     throw Error("Failed to get wallet passphrase");
   } else {
     const body = await response.json();
-    encryptedPassphrase = body.passphrase;
+    encryptedPassphrase = shims.passphrase(body);
   }
 
-  const mnemonic = decryptWithPassword(encryptedPassphrase);
+  const mnemonic = decryptWithPassword(password, encryptedPassphrase);
   if (checkMnemonicIsValid(mnemonic)) {
     return mnemonic;
   } else {
