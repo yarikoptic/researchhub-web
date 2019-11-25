@@ -285,6 +285,7 @@ const routes = (BASE_URL) => {
       }
 
       return url;
+    },
 
     WALLET: () => {
       return BASE_URL + `wallet/`;
