@@ -144,7 +144,7 @@ class Notification extends React.Component {
       } else if (notification.extra && notification.extra.bullet_point) {
         action = {
           content_type: "vote_bullet",
-          created_by: notification.extra.bullet_point.created_by,
+          created_by: notification.extra.created_by,
           created_date: notification.created_date,
           plain_text: notification.extra.bullet_point.plain_text,
           paper_id: notification.extra.bullet_point.paper,
@@ -152,7 +152,7 @@ class Notification extends React.Component {
       } else if (notification.extra && notification.extra.summary) {
         action = {
           content_type: "vote_summary",
-          created_by: notification.extra.summary.proposed_by,
+          created_by: notification.extra.created_by,
           created_date: notification.created_date,
           plain_text: notification.extra.summary.summary_plain_text,
           paper_id: notification.extra.summary.paper,
