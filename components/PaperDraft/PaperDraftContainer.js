@@ -1,4 +1,5 @@
-import { CompositeDecorator, EditorState } from "draft-js";
+import { getDecorator } from "./util/PaperDraftDecoratorFinders";
+import { EditorState } from "draft-js";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Helpers } from "@quantfive/js-web-config";
 import InlineCommentUnduxStore from "../PaperDraftInlineComment/undux/InlineCommentUnduxStore";
@@ -12,31 +13,10 @@ import {
   INLINE_COMMENT_MAP,
 } from "../PaperDraftInlineComment/util/PaperDraftInlineCommentUtil";
 import {
-  findInlineCommentEntity,
-  findWayPointEntity,
-} from "./util/PaperDraftDecoratorFinders";
-import {
   formatBase64ToEditorState,
   formatRawJsonToEditorState,
 } from "./util/PaperDraftUtils";
 import PaperDraft from "./PaperDraft";
-import PaperDraftInlineCommentTextWrap from "../PaperDraftInlineComment/PaperDraftInlineCommentTextWrap";
-import WaypointSection from "./WaypointSection";
-
-function getDecorator({ seenEntityKeys, setActiveSection, setSeenEntityKeys }) {
-  return new CompositeDecorator([
-    {
-      component: (props) => (
-        <WaypointSection {...props} onSectionEnter={setActiveSection} />
-      ),
-      strategy: findWayPointEntity(seenEntityKeys, setSeenEntityKeys),
-    },
-    {
-      component: (props) => <PaperDraftInlineCommentTextWrap {...props} />,
-      strategy: findInlineCommentEntity,
-    },
-  ]);
-}
 
 function paperFetchHook({
   decorator,
@@ -107,12 +87,19 @@ function PaperDraftContainer({
   const decorator = useMemo(
     () =>
       getDecorator({
+        editorState,
         seenEntityKeys,
         setActiveSection,
         setEditorState,
         setSeenEntityKeys,
       }),
-    [seenEntityKeys, setSeenEntityKeys, setActiveSection]
+    [
+      editorState,
+      seenEntityKeys,
+      setActiveSection,
+      setEditorState,
+      setSeenEntityKeys,
+    ]
   );
 
   useEffect(

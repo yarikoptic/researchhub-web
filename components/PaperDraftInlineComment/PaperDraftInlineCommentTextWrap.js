@@ -1,15 +1,45 @@
 import { css, StyleSheet } from "aphrodite";
-import React, { useEffect, useMemo, useState } from "react";
-import Popover from "react-popover";
+import { EditorState, Modifier, SelectionState } from "draft-js";
 import InlineCommentUnduxStore, {
   findTargetInlineComment,
   updateInlineComment,
 } from "./undux/InlineCommentUnduxStore";
+import Popover from "react-popover";
+import React, { useEffect, useMemo, useState } from "react";
+
+export const getUnmountStrategy = ({ editorState, setEditorState }) => (
+  targetEntityContentState
+) => {
+  /* Most likely this will trigger only once. There may be instances where they have nested comments*/
+  targetEntityContentState.getBlockMap().forEach((block) => {
+    const blockKey = block.getKey();
+    const blockText = block.getText();
+    const selection = SelectionState.createEmpty(blockKey);
+    const updatedSelection = selection.merge({
+      anchorOffset: 0,
+      focusOffset: blockText.length,
+    });
+    const emptyEntEditorState = EditorState.set(editorState, {
+      currentContent: Modifier.applyEntity(
+        targetEntityContentState,
+        updatedSelection,
+        null
+      ),
+    });
+    setEditorState(emptyEntEditorState);
+  });
+};
 
 function PaperDraftInlineCommentTextWrap(
   props /* prop comes in from draft-js */
 ) {
-  const { blockKey, commentThreadID, entityKey } = props ?? {};
+  const {
+    blockKey,
+    commentThreadID,
+    contentState,
+    entityKey,
+    unmountStrategy,
+  } = props ?? {};
   const [showPopover, setShowPopover] = useState(false);
   const unduxStore = InlineCommentUnduxStore.useStore();
 
@@ -29,7 +59,7 @@ function PaperDraftInlineCommentTextWrap(
     if (!doesCommentExistInStore) {
       setShowPopover(true);
     }
-    return () => {
+    return function() {
       console.warn("cleaning up");
     };
   }, [doesCommentExistInStore]);
@@ -48,15 +78,16 @@ function PaperDraftInlineCommentTextWrap(
     setShowPopover(false);
   };
 
-  const removeEntityAndUnmount = (event) => {
+  const dismountAndRemoveThisEntity = (event) => {
     event.stopPropagation();
-    console.warn("hi");
+    console.warn("Clicked OUT");
     setShowPopover(false);
+    unmountStrategy(contentState);
   };
 
   return (
     <Popover
-      onOuterAction={removeEntityAndUnmount}
+      onOuterAction={dismountAndRemoveThisEntity}
       above
       body={
         <span
