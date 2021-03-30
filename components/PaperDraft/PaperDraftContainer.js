@@ -16,6 +16,8 @@ import {
   formatRawJsonToEditorState,
 } from "./util/PaperDraftUtils";
 import PaperDraft from "./PaperDraft";
+import PaperDraftContextMenuWrap from "../PaperDraftInlineComment/PaperDraftContextMenuWrap";
+import PaperDraftContextMenuButton from "../PaperDraftInlineComment/PaperDraftContextMenuButton";
 import PaperDraftInlineCommentTextWrap from "../PaperDraftInlineComment/PaperDraftInlineCommentTextWrap";
 import WaypointSection from "./WaypointSection";
 
@@ -81,8 +83,16 @@ function paperFetchHook({
     .catch(handleFetchError);
 }
 
+function getShouldShowContextMenu(editorState) {
+  const selection = editorState.getSelection();
+  const result = selection != null && !selection.isCollapsed();
+  console.warn("selection: ", selection);
+  console.warn("selection.isCollapsed(): ", selection.isCollapsed());
+  return selection != null && !selection.isCollapsed();
+}
+
 // Container to fetch documents & convert strings into a disgestable format for PaperDraft.
-function PaperDraftContainer({
+export default function PaperDraftContainer({
   isViewerAllowedToEdit,
   paperDraftExists,
   paperDraftSections,
@@ -92,6 +102,7 @@ function PaperDraftContainer({
   setPaperDraftSections,
 }) {
   const inlineCommentStore = InlineCommentUnduxStore.useStore();
+  const [isDraftInEditMode, setIsDraftInEditMode] = useState(false);
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [initEditorState, setInitEditorState] = useState(
     EditorState.createEmpty()
@@ -120,28 +131,46 @@ function PaperDraftContainer({
     [paperId] /* intentionally hard enforcing only on paperID. */
   );
 
+  const shouldShowContextMenu = getShouldShowContextMenu(editorState);
   return (
-    <PaperDraft
-      textEditorProps={{
-        blockStyleFn: getBlockStyleFn,
-        editorState,
-        handleKeyCommand: getHandleKeyCommand({
+    <PaperDraftContextMenuWrap
+      menuButtons={[
+        <PaperDraftContextMenuButton
+          key="comment"
+          label="comment"
+          onClick={() => {}}
+        />,
+      ]}
+      shouldShowMenu={shouldShowContextMenu}
+    >
+      <PaperDraft
+        textEditorProps={{
+          blockStyleFn: getBlockStyleFn,
           editorState,
-          setEditorState,
-        }),
-        initEditorState,
-        onChange: setEditorState,
-        setInitEditorState,
-        spellCheck: true,
-      }}
-      inlineCommentStore={inlineCommentStore}
-      isFetching={isFetching}
-      isViewerAllowedToEdit={isViewerAllowedToEdit}
-      paperDraftExists={paperDraftExists}
-      paperDraftSections={paperDraftSections}
-      paperId={paperId}
-    />
+          handleKeyCommand: () => {
+            isDraftInEditMode
+              ? getHandleKeyCommand({
+                  editorState,
+                  setEditorState,
+                })
+              : null;
+          },
+          initEditorState,
+          isInEditMode: isDraftInEditMode,
+          setIsInEditMode: setIsDraftInEditMode,
+          onChange: (editorState) => {
+            isDraftInEditMode ? setIsDraftInEditMode(editorState) : null;
+          },
+          setInitEditorState,
+          spellCheck: true,
+        }}
+        inlineCommentStore={inlineCommentStore}
+        isFetching={isFetching}
+        isViewerAllowedToEdit={isViewerAllowedToEdit}
+        paperDraftExists={paperDraftExists}
+        paperDraftSections={paperDraftSections}
+        paperId={paperId}
+      />
+    </PaperDraftContextMenuWrap>
   );
 }
-
-export default PaperDraftContainer;
