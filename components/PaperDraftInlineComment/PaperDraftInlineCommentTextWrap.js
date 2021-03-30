@@ -29,6 +29,9 @@ function PaperDraftInlineCommentTextWrap(
     if (!doesCommentExistInStore) {
       setShowPopover(true);
     }
+    return () => {
+      console.warn("cleaning up");
+    };
   }, [doesCommentExistInStore]);
 
   const hidePopoverAndInsertToStore = (event) => {
@@ -45,9 +48,15 @@ function PaperDraftInlineCommentTextWrap(
     setShowPopover(false);
   };
 
+  const removeEntityAndUnmount = (event) => {
+    event.stopPropagation();
+    console.warn("hi");
+    setShowPopover(false);
+  };
+
   return (
     <Popover
-      onOuterAction={() => setShowPopover(false)}
+      onOuterAction={removeEntityAndUnmount}
       above
       body={
         <span
