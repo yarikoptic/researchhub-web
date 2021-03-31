@@ -84,30 +84,12 @@ function PaperDraftContainer({
   const [isFetching, setIsFetching] = useState(true);
   const [seenEntityKeys, setSeenEntityKeys] = useState({});
 
-  const decorator = useMemo(
-    () =>
-      getDecorator({
-        editorState,
-        seenEntityKeys,
-        setActiveSection,
-        setEditorState,
-        setSeenEntityKeys,
-      }),
-    [
-      editorState,
-      seenEntityKeys,
-      setActiveSection,
-      setEditorState,
-      setSeenEntityKeys,
-    ]
-  );
-
   useEffect(
     /* backend fetch */
     () => {
       inlineCommentStore.set("paperID")(paperId);
       paperFetchHook({
-        decorator,
+        // decorator,
         paperId,
         setEditorState,
         setInitEditorState,
@@ -119,21 +101,37 @@ function PaperDraftContainer({
     [paperId] /* intentionally hard enforcing only on paperID. */
   );
 
-  const currSelection = editorState.getSelection();
+  const decorator = getDecorator({
+    editorState,
+    seenEntityKeys,
+    setActiveSection,
+    setEditorState,
+    setSeenEntityKeys,
+  });
+  const editorStateWithDecorator = EditorState.set(editorState, { decorator });
+
+  const currSelection = editorStateWithDecorator.getSelection();
+  const hasActiveCommentPrompt =
+    inlineCommentStore.get("newInlinePrompter").entityKey != null;
+  console.warn("hasActiveCommentPrompt: ", hasActiveCommentPrompt);
   useEffect(() => {
     /* listener to deal with editor selection & inline commenting */
     if (
+      !hasActiveCommentPrompt &&
+      !isDraftInEditMode &&
       currSelection != null &&
-      !currSelection.isCollapsed() &&
-      !isDraftInEditMode
+      !currSelection.isCollapsed()
     ) {
+      console.warn("inserting a popover");
       const updatedEditorState = handleBlockStyleToggle({
-        editorState,
+        editorState: editorStateWithDecorator,
         toggledStyle: INLINE_COMMENT_MAP.TYPE_KEY,
+        onCommentPromptSuccess: (entityKey) =>
+          inlineCommentStore.set("newInlinePrompter")({ entityKey }),
       });
       setEditorState(updatedEditorState);
     }
-  }, [currSelection, setIsDraftInEditMode]);
+  }, [currSelection, hasActiveCommentPrompt, setIsDraftInEditMode]);
 
   const handleKeyCommand = useCallback(
     ({ editorState, setEditorState }) => {
@@ -153,7 +151,7 @@ function PaperDraftContainer({
     <PaperDraft
       textEditorProps={{
         blockStyleFn: getBlockStyleFn,
-        editorState,
+        editorState: editorStateWithDecorator,
         handleKeyCommand: handleKeyCommand({ editorState, setEditorState }),
         initEditorState,
         isInEditMode: isDraftInEditMode,

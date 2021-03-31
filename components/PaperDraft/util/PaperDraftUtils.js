@@ -164,7 +164,8 @@ export const formatRawJsonToEditorState = (payload) => {
     const { data, sections } = rawJson;
     const newEditorState = EditorState.set(
       EditorState.createWithContent(convertFromRaw(data)),
-      { decorator }
+      {}
+      // { decorator }
     );
     onSuccess({ sections });
     return newEditorState;

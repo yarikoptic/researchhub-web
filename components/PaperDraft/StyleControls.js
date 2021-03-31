@@ -6,7 +6,7 @@ import {
 import { StyleSheet, css } from "aphrodite";
 import React, { useMemo } from "react";
 import StyleButton from "./StyleButton";
-
+import { DefaultDraftInlineStyle } from "draft-js";
 // Config
 import colors from "~/config/themes/colors";
 const BLOCK_TYPES = [
@@ -25,7 +25,6 @@ const INLINE_STYLES = [
 const BlockStyleControls = (props) => {
   const { editorState, onClickBlock, onClickInline } = props;
   const currSelectedBlockTypes = getCurrSelectionBlockTypesInSet(editorState);
-
   const blockStyleButtons = useMemo(
     () =>
       BLOCK_TYPES.map(({ label, style }) => (
@@ -42,7 +41,11 @@ const BlockStyleControls = (props) => {
       )),
     [currSelectedBlockTypes, onClickBlock]
   );
-  const currentInlineStyle = editorState.getCurrentInlineStyle();
+
+  const currentInlineStyle =
+    editorState != null
+      ? editorState.getCurrentInlineStyle()
+      : DefaultDraftInlineStyle;
   const inlineStylebuttons = useMemo(
     () =>
       INLINE_STYLES.map(({ label, style }) => (

@@ -1,15 +1,10 @@
 import { draftCssToCustomCss } from "../../PaperDraft/util/PaperDraftTextEditorUtil";
 import { EditorState, Modifier } from "draft-js";
 
-function getSelectedBlockFromEditorState(editorState, selectionState = null) {
-  // TODO: calvinhlee need to improve below to capture selection range within the block
+function getSelectedBlockFromEditorState(editorState) {
   return editorState
     .getCurrentContent()
-    .getBlockForKey(
-      selectionState != null
-        ? selectionState
-        : editorState.getSelection().getStartKey()
-    );
+    .getBlockForKey(editorState.getSelection().getStartKey());
 }
 
 function getBlockTypesInSet(block) {
@@ -45,7 +40,10 @@ function formatBlockTypes(blockTypes) {
 
 /* NOTE: This function only upserts. 
    Deletion must be done at the Comment-UI, utilizing a direct backend-call & updating unduxStore */
-function handleInlineCommentBlockToggle({ editorState }) {
+function handleInlineCommentBlockToggle({
+  editorState,
+  onCommentPromptSuccess,
+}) {
   const selectionBlock = getSelectedBlockFromEditorState(editorState);
   const currBlockTypes = getBlockTypesInSet(selectionBlock);
   const currBlockData = selectionBlock.getData();
@@ -75,7 +73,7 @@ function handleInlineCommentBlockToggle({ editorState }) {
   const updatedEditorStateWithNewEnt = EditorState.set(editorState, {
     currentContent: updatedContentWithNewEnt,
   });
-
+  onCommentPromptSuccess(entityKey);
   return getModifiedContentState({
     blockData: currBlockData,
     editorState: updatedEditorStateWithNewEnt,
@@ -108,11 +106,16 @@ export const INLINE_COMMENT_MAP = {
   TYPE_KEY: "ResearchHub-Inline-Comment", // interpreted in paper.css
 };
 
-export function handleBlockStyleToggle({ editorState, toggledStyle }) {
+export function handleBlockStyleToggle({
+  editorState,
+  toggledStyle,
+  onCommentPromptSuccess = null,
+}) {
   const modifiedContentState =
     toggledStyle === INLINE_COMMENT_MAP.TYPE_KEY
       ? handleInlineCommentBlockToggle({
           editorState,
+          onCommentPromptSuccess,
         })
       : handleNonInlineCommentBlockToggle(editorState, toggledStyle);
   return EditorState.push(editorState, modifiedContentState);

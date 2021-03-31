@@ -8,26 +8,25 @@ import Popover from "react-popover";
 import React, { useEffect, useMemo, useState } from "react";
 
 export const getUnmountStrategy = ({ editorState, setEditorState }) => (
+  blockKey,
   targetEntityContentState
 ) => {
   /* Most likely this will trigger only once. There may be instances where they have nested comments*/
-  targetEntityContentState.getBlockMap().forEach((block) => {
-    const blockKey = block.getKey();
-    const blockText = block.getText();
-    const selection = SelectionState.createEmpty(blockKey);
-    const updatedSelection = selection.merge({
-      anchorOffset: 0,
-      focusOffset: blockText.length,
-    });
-    const emptyEntEditorState = EditorState.set(editorState, {
-      currentContent: Modifier.applyEntity(
-        targetEntityContentState,
-        updatedSelection,
-        null
-      ),
-    });
-    setEditorState(emptyEntEditorState);
+  const currSelection = editorState.getSelection();
+  const emptySelection = SelectionState.createEmpty(blockKey);
+  const updatedEmptySelection = emptySelection.merge({
+    anchorKey: currSelection.anchorKey,
+    anchorOffset: currSelection.anchorOffset,
+    focusOffset: currSelection.focusOffset,
   });
+  const emptyEntEditorState = EditorState.set(editorState, {
+    currentContent: Modifier.applyEntity(
+      targetEntityContentState,
+      updatedEmptySelection,
+      null
+    ),
+  });
+  setEditorState(emptyEntEditorState);
 };
 
 function PaperDraftInlineCommentTextWrap(
@@ -42,7 +41,8 @@ function PaperDraftInlineCommentTextWrap(
   } = props ?? {};
   const [showPopover, setShowPopover] = useState(false);
   const unduxStore = InlineCommentUnduxStore.useStore();
-
+  const isBeingPrompted =
+    unduxStore.get("newInlinePrompter").entityKey === entityKey;
   const targetInlineComment = useMemo(
     () =>
       findTargetInlineComment({
@@ -53,16 +53,17 @@ function PaperDraftInlineCommentTextWrap(
       }),
     [blockKey, commentThreadID, entityKey, unduxStore]
   );
-  const doesCommentExistInStore = targetInlineComment != null;
+  console.warn("EntityKEy: ", entityKey);
+  console.warn("isBeingPrompted: ", isBeingPrompted);
 
   useEffect(() => {
-    if (!doesCommentExistInStore) {
+    if (isBeingPrompted) {
       setShowPopover(true);
     }
-    return function() {
-      console.warn("cleaning up");
+    return function cleanup() {
+      console.warn("UN-MOUNTED");
     };
-  }, [doesCommentExistInStore]);
+  }, []);
 
   const hidePopoverAndInsertToStore = (event) => {
     event.stopPropagation();
@@ -78,13 +79,17 @@ function PaperDraftInlineCommentTextWrap(
     setShowPopover(false);
   };
 
+  const inlineCommentExists = !isBeingPrompted && targetInlineComment != null;
   const dismountAndRemoveThisEntity = (event) => {
-    event.stopPropagation();
-    console.warn("Clicked OUT");
-    setShowPopover(false);
-    unmountStrategy(contentState);
+    if (inlineCommentExists) {
+      try {
+        unduxStore.set("newInlinePrompter")({ entityKey: null });
+        console.warn("Clicked OUT");
+        unmountStrategy(blockKey, entityKey, contentState);
+      } catch {}
+      setShowPopover(false);
+    }
   };
-
   return (
     <Popover
       onOuterAction={dismountAndRemoveThisEntity}
@@ -101,7 +106,7 @@ function PaperDraftInlineCommentTextWrap(
       children={
         <span
           className={css(
-            doesCommentExistInStore ? styles.commentTextHighLight : null
+            inlineCommentExists ? styles.commentTextHighLight : null
           )}
         >
           {props.children}

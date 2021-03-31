@@ -9,21 +9,25 @@ export type DeleteInlineCommentArgs = {
   commentThreadID: ID;
   store: InlineCommentStore;
 };
-export type InlineComment = {
-  blockKey: string;
-  commentThreadID: ID;
-  isNewSelection: boolean;
-  entityKey: string;
-};
 export type FindTargetInlineCommentArg = {
   blockKey: string;
   commentThreadID: ID;
   entityKey: string;
   store: Store<State>;
 };
+export type InlineComment = {
+  blockKey: string;
+  commentThreadID: ID;
+  isNewSelection: boolean;
+  entityKey: string;
+};
+export type NewInlinePrompter = {
+  entityKey: string | null;
+};
 export type State = {
   // inlineComments are grouped by blockKey to encourage threads to be recognized as relevant @ UI / UX level
   inlineComments: Array<InlineComment>;
+  newInlinePrompter: NewInlinePrompter;
   paperID: ID;
 };
 export type UpdateInlineCommentArgs = {
@@ -62,7 +66,11 @@ const findIndexOfCommentInStore = (
     );
 };
 
-const initialState: State = { paperID: null, inlineComments: [] };
+const initialState: State = {
+  paperID: null,
+  inlineComments: [],
+  newInlinePrompter: { entityKey: null },
+};
 
 export function deleteInlineComment({
   blockKey,
