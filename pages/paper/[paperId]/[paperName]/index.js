@@ -37,6 +37,7 @@ import { BulletActions } from "~/redux/bullets";
 
 // Undux
 import InlineCommentUnduxStore from "~/components/PaperDraftInlineComment/undux/InlineCommentUnduxStore";
+import PaperDraftUnduxStore from "~/components/PaperDraft/undux/PaperDraftUnduxStore";
 
 // Config
 import { UPVOTE, DOWNVOTE } from "~/config/constants";
@@ -422,8 +423,9 @@ const Paper = (props) => {
   function onSectionEnter(index) {
     activeTab !== index && setActiveTab(index);
   }
-
-  const shouldShowInlineComment = true; // TODO: calvinhlee - comeup with a design decision
+  const inlineCommentUnduxStore = InlineCommentUnduxStore.useStore();
+  const shouldShowInlineComment =
+    inlineCommentUnduxStore.get("displayableInlineComments").length > 0;
   return (
     <div>
       <PaperBanner paper={paper} loadingPaper={loadingPaper} />
@@ -700,11 +702,13 @@ Paper.getInitialProps = async (ctx) => {
   return props;
 };
 
-const PaperWithInlineUndux = (props) => {
+const PaperIndexWithUndux = (props) => {
   return (
-    <InlineCommentUnduxStore.Container>
-      <Paper {...props} />
-    </InlineCommentUnduxStore.Container>
+    <PaperDraftUnduxStore.Container>
+      <InlineCommentUnduxStore.Container>
+        <Paper {...props} />
+      </InlineCommentUnduxStore.Container>
+    </PaperDraftUnduxStore.Container>
   );
 };
 
@@ -1108,4 +1112,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(PaperWithInlineUndux);
+)(PaperIndexWithUndux);

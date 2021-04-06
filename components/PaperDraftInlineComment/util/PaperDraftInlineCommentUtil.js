@@ -1,4 +1,7 @@
-import { draftCssToCustomCss } from "../../PaperDraft/util/PaperDraftTextEditorUtil";
+import {
+  draftCssToCustomCss,
+  INLINE_COMMENT_MAP,
+} from "../../PaperDraft/util/PaperDraftTextEditorUtil";
 import { EditorState, Modifier } from "draft-js";
 
 function getSelectedBlockFromEditorState(editorState, selectionState = null) {
@@ -74,6 +77,20 @@ function handleInlineCommentBlockToggle({
   return updatedEditorStateWithNewEnt.getCurrentContent();
 }
 
+export function updateInlineThreadIdInEntity({
+  entityKey,
+  paperDraftStore,
+  commentThreadID,
+}) {
+  const editorState = paperDraftStore.get("editorState");
+  const currContentState = editorState.getCurrentContent();
+  // directly mutates the entity
+  currContentState.mergeEntityData(entityKey, {
+    commentThreadID,
+  });
+  paperDraftStore.set("shouldSavePaper")(true);
+}
+
 function handleNonInlineCommentBlockToggle(editorState, toggledStyle) {
   const selectionBlock = getSelectedBlockFromEditorState(editorState);
   const currBlockTypes = getBlockTypesInSet(selectionBlock);
@@ -95,10 +112,6 @@ function handleNonInlineCommentBlockToggle(editorState, toggledStyle) {
 }
 
 /* -------- EXPORTS -------- */
-export const INLINE_COMMENT_MAP = {
-  TYPE_KEY: "ResearchHub-Inline-Comment", // interpreted in paper.css
-};
-
 export function handleBlockStyleToggle({
   editorState,
   onInlineCommentPrompt,
