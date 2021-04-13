@@ -4,7 +4,7 @@ import { EditorState } from "draft-js";
 export type ID = string | number | null;
 export type PaperDraftStore = Store<State>;
 export type State = {
-  editorState: EditorState | null;
+  editorState: EditorState;
   initEditorState: EditorState | null;
   lastSavePaperTime: number | null;
   paperID: ID;

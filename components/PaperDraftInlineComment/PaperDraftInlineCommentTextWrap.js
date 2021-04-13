@@ -9,8 +9,6 @@ import InlineCommentUnduxStore, {
 } from "./undux/InlineCommentUnduxStore";
 import PaperDraftStore from "../PaperDraft/undux/PaperDraftUnduxStore";
 
-const ANIMATION_DURATION = 2; /* in seconds */
-
 function PaperDraftInlineCommentTextWrap(
   props /* prop comes in from draft-js */
 ) {
