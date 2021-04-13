@@ -4,11 +4,11 @@ import React, { ReactChildren, ReactElement } from "react";
 
 type Props = { children: ReactChildren };
 
-export default function PaperDraftInlineCommentSlideButtonWrap({
+export default function PaperDraftInlineCommentPositionWrap({
   children,
 }: Props): ReactElement<"div"> {
   return (
-    <div className={css(styles.PaperDraftInlineCommentSlideButtonWrap)}>
+    <div className={css(styles.PaperDraftInlineCommentPositionWrap)}>
       <PaperDraftInlineCommentSlideButton />
       {children}
     </div>
@@ -16,7 +16,7 @@ export default function PaperDraftInlineCommentSlideButtonWrap({
 }
 
 const styles = StyleSheet.create({
-  PaperDraftInlineCommentSlideButtonWrap: {
+  PaperDraftInlineCommentPositionWrap: {
     height: "100%",
     position: "relative",
     width: "100%",

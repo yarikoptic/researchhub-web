@@ -12,7 +12,7 @@ import { INLINE_COMMENT_MAP } from "./util/PaperDraftTextEditorUtil";
 import { paperFetchHook } from "./api/PaperDraftPaperFetch";
 import PaperDraft from "./PaperDraft";
 import PaperDraftUnduxStore from "./undux/PaperDraftUnduxStore";
-import PaperDraftInlineCommentSlideButtonWrap from "../PaperDraftInlineComment/PaperDraftInlineCommentSlideButtonWrap";
+import PaperDraftInlineCommentPositionWrap from "../PaperDraftInlineComment/PaperDraftInlineCommentPositionWrap";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { savePaperSilentlyHook } from "./api/PaperDraftSilentSave";
 
@@ -161,7 +161,7 @@ export default function PaperDraftContainer({
   );
 
   return (
-    <PaperDraftInlineCommentSlideButtonWrap>
+    <PaperDraftInlineCommentPositionWrap>
       <PaperDraft
         textEditorProps={{
           blockStyleFn: getBlockStyleFn,
@@ -181,6 +181,6 @@ export default function PaperDraftContainer({
         paperDraftSections={paperDraftSections}
         paperId={paperId}
       />
-    </PaperDraftInlineCommentSlideButtonWrap>
+    </PaperDraftInlineCommentPositionWrap>
   );
 }
