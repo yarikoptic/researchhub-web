@@ -11,8 +11,8 @@ import PaperDraftStore from "../PaperDraft/undux/PaperDraftUnduxStore";
 
 export default function PaperDraftInlineCommentTextWrapWithSlideButton(
   props /* prop comes in from draft-js */
-):ReactElement<"span"> {
-  const { blockKey,children,  contentState, decoratedText, entityKey } = props ?? {};
+): ReactElement<"span"> {
+  const { blockKey, children, contentState, decoratedText, entityKey } = props;
   const inlineCommentStore = InlineCommentUnduxStore.useStore();
   const paperDraftStore = PaperDraftStore.useStore();
   const isSilenced = inlineCommentStore
@@ -111,4 +111,3 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 });
-
