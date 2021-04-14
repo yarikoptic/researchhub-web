@@ -1,4 +1,8 @@
-import { emptyFunction } from "./util/PaperDraftUtils";
+import {
+  emptyFunction,
+  getIsReadyForNewInlineComment,
+  getShouldSavePaperSilently,
+} from "./util/PaperDraftUtils";
 import InlineCommentUnduxStore, {
   cleanupStoreAndCloseDisplay,
 } from "../PaperDraftInlineComment/undux/InlineCommentUnduxStore";
@@ -14,44 +18,6 @@ import PaperDraft from "./PaperDraft";
 import PaperDraftUnduxStore from "./undux/PaperDraftUnduxStore";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { savePaperSilentlyHook } from "./api/PaperDraftSilentSave";
-
-function getIsGoodTimeInterval(unixTimeInMilliSec) {
-  return unixTimeInMilliSec === null
-    ? true
-    : Date.now() - unixTimeInMilliSec > 500; // 300-500 millisec is ui convention
-}
-
-function getIsReadyForNewInlineComment({
-  editorState,
-  inlineCommentStore,
-  isDraftInEditMode,
-}) {
-  const currSelection = editorState.getSelection();
-  const isGoodTimeInterval = getIsGoodTimeInterval(
-    inlineCommentStore.get("lastPromptRemovedTime")
-  );
-  const hasActiveCommentPrompt =
-    inlineCommentStore.get("promptedEntityKey") != null;
-  return (
-    !isDraftInEditMode &&
-    isGoodTimeInterval &&
-    !hasActiveCommentPrompt &&
-    currSelection != null &&
-    !currSelection.isCollapsed()
-  );
-}
-
-function getShouldSavePaperSilently({ isDraftInEditMode, paperDraftStore }) {
-  const isGoodTimeInterval = getIsGoodTimeInterval(
-    paperDraftStore.get("lastSavePaperTime")
-  );
-  return (
-    !isDraftInEditMode &&
-    isGoodTimeInterval &&
-    paperDraftStore.get("paperID") != null &&
-    paperDraftStore.get("shouldSavePaper")
-  );
-}
 
 // Container to fetch documents & convert strings into a disgestable format for PaperDraft.
 export default function PaperDraftContainer({
