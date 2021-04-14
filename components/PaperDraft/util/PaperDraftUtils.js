@@ -1,6 +1,12 @@
 import { EditorState, convertFromRaw } from "draft-js";
 import { convertFromHTML } from "draft-convert";
 
+function getIsGoodTimeInterval(unixTimeInMilliSec) {
+  return unixTimeInMilliSec === null
+    ? true
+    : Date.now() - unixTimeInMilliSec > 500; // 300-500 millisec is ui convention
+}
+
 const htmlToBlock = (nodeName, node, idsToRemove) => {
   if (idsToRemove[node.id] || idsToRemove[node.parentNode.id]) {
     return false;
@@ -174,3 +180,39 @@ export const formatRawJsonToEditorState = (payload) => {
     onError("formatRawJsonToEditorState: ", error);
   }
 };
+
+export function getIsReadyForNewInlineComment({
+  editorState,
+  inlineCommentStore,
+  isDraftInEditMode,
+}) {
+  const currSelection = editorState.getSelection();
+  const isGoodTimeInterval = getIsGoodTimeInterval(
+    inlineCommentStore.get("lastPromptRemovedTime")
+  );
+  const hasActiveCommentPrompt =
+    inlineCommentStore.get("promptedEntityKey") != null;
+  return (
+    !isDraftInEditMode &&
+    isGoodTimeInterval &&
+    !hasActiveCommentPrompt &&
+    currSelection != null &&
+    !currSelection.isCollapsed() &&
+    currSelection.size > 0
+  );
+}
+
+export function getShouldSavePaperSilently({
+  isDraftInEditMode,
+  paperDraftStore,
+}) {
+  const isGoodTimeInterval = getIsGoodTimeInterval(
+    paperDraftStore.get("lastSavePaperTime")
+  );
+  return (
+    !isDraftInEditMode &&
+    isGoodTimeInterval &&
+    paperDraftStore.get("paperID") != null &&
+    paperDraftStore.get("shouldSavePaper")
+  );
+}

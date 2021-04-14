@@ -18,7 +18,7 @@ function PaperDraftInlineCommentTextWrap(
   const isSilenced = inlineCommentStore
     .get("silencedPromptKeys")
     .has(entityKey);
-  const animatedEntityKey = inlineCommentStore.get("animatedEntityKey");
+  const animatedEntityKey = inlineCommentStore.get("animatedTextCommentID");
   const animatedTextCommentID = inlineCommentStore.get("animatedTextCommentID");
   const isBeingPrompted =
     inlineCommentStore.get("promptedEntityKey") === entityKey;
@@ -109,15 +109,6 @@ function PaperDraftInlineCommentTextWrap(
     inlineCommentStore.set("animatedTextCommentID")(commentThreadID);
   };
 
-  const el = document.getElementById(
-    commentThreadID != null
-      ? `inline-comment-${commentThreadID}`
-      : `inline-comment-${entityKey}`
-  );
-  if (isBeingPrompted && el != null) {
-    console.warn("left: ", el.offsetLeft);
-    console.warn("top: ", el.offsetTop);
-  }
   return (
     <Popover
       above

@@ -27,6 +27,7 @@ export type State = {
   inlineComments: Array<InlineComment>;
   lastPromptRemovedTime: number | null;
   paperID: ID;
+  prePromptEditorState: EditorState;
   promptedEntityKey: ID /* used mainly for PaperDraftInlineCommentTextWrap */;
   silencedPromptKeys: Set<ID> /* entityKeys */;
 };
@@ -63,6 +64,7 @@ const initialState: State = {
   inlineComments: [],
   lastPromptRemovedTime: null,
   paperID: null,
+  prePromptEditorState: EditorState.createEmpty(),
   promptedEntityKey: null,
   silencedPromptKeys: new Set(),
 };
@@ -196,15 +198,17 @@ export function cleanupStoreAndCloseDisplay({
   inlineCommentStore: InlineCommentStore;
   exceptionEntityKey?: ID;
 }): void {
+  console.warn("cleaning up");
+  inlineCommentStore.set("animatedEntityKey")(null);
+  inlineCommentStore.set("animatedTextCommentID")(null);
+  inlineCommentStore.set("displayableInlineComments")([]);
+  inlineCommentStore.set("promptedEntityKey")(null);
   const commentsWithThreadID = inlineCommentStore
     .get("inlineComments")
     .filter(
       (inlineComment: InlineComment): boolean =>
         inlineComment.commentThreadID != null
     );
-  inlineCommentStore.set("animatedEntityKey")(null);
-  inlineCommentStore.set("animatedTextCommentID")(null);
-  inlineCommentStore.set("displayableInlineComments")([]);
   inlineCommentStore.set("inlineComments")(commentsWithThreadID);
 }
 

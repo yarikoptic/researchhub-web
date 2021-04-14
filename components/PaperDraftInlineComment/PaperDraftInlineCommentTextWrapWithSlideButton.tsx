@@ -1,13 +1,55 @@
 import { css, StyleSheet } from "aphrodite";
-import React, { ReactElement, useEffect, useMemo, useState } from "react";
+import React, {
+  ReactElement,
+  MutableRefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  SyntheticEvent,
+} from "react";
 import Popover from "react-popover";
 import InlineCommentUnduxStore, {
   cleanupStoreAndCloseDisplay,
   findTargetInlineComment,
   getSavedInlineCommentsGivenBlockKey,
-  updateInlineComment,
 } from "./undux/InlineCommentUnduxStore";
 import PaperDraftStore from "../PaperDraft/undux/PaperDraftUnduxStore";
+import { formatTextWrapID } from "./util/PaperDraftInlineCommentUtil";
+
+type useClickOutSideEffectArgs = {
+  isBeingPrompted: boolean;
+  isSilenced: boolean;
+  onClickOutside: (event: SyntheticEvent) => void;
+  textWrapRef: MutableRefObject<"span" | null>;
+};
+
+function useClickOutSideEffect({
+  isBeingPrompted,
+  isSilenced,
+  onClickOutside,
+  textWrapRef,
+}: useClickOutSideEffectArgs) {
+  useEffect(() => {
+    if (isBeingPrompted && !isSilenced) {
+      function handleClickOutside(event) {
+        const refCurrent =
+          textWrapRef != null &&
+          textWrapRef.current != null &&
+          typeof textWrapRef.current === "object"
+            ? textWrapRef.current
+            : null;
+        // @ts-ignore
+        if (refCurrent != null && !refCurrent.contains(event.target)) {
+          onClickOutside(event);
+        }
+      }
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [isBeingPrompted, isSilenced, onClickOutside, textWrapRef]);
+}
 
 export default function PaperDraftInlineCommentTextWrapWithSlideButton(
   props /* prop comes in from draft-js */
@@ -15,13 +57,9 @@ export default function PaperDraftInlineCommentTextWrapWithSlideButton(
   const { blockKey, children, contentState, decoratedText, entityKey } = props;
   const inlineCommentStore = InlineCommentUnduxStore.useStore();
   const paperDraftStore = PaperDraftStore.useStore();
-  const isSilenced = inlineCommentStore
-    .get("silencedPromptKeys")
-    .has(entityKey);
   const animatedEntityKey = inlineCommentStore.get("animatedEntityKey");
   const animatedTextCommentID = inlineCommentStore.get("animatedTextCommentID");
-  const isBeingPrompted =
-    inlineCommentStore.get("promptedEntityKey") === entityKey;
+  const silencedPromptKeys = inlineCommentStore.get("silencedPromptKeys");
   const { commentThreadID } = contentState.getEntity(entityKey).getData();
   const isCommentSavedInBackend = commentThreadID != null;
   const doesCommentExistInStore =
@@ -31,6 +69,7 @@ export default function PaperDraftInlineCommentTextWrapWithSlideButton(
       entityKey,
       store: inlineCommentStore,
     }) != null;
+
   const shouldTextBeHighlighted = useMemo(
     () => doesCommentExistInStore || isCommentSavedInBackend,
     [doesCommentExistInStore, isCommentSavedInBackend]
@@ -49,12 +88,27 @@ export default function PaperDraftInlineCommentTextWrapWithSlideButton(
     ]
   );
 
-  // useEffect(() => {
-  //   // ensures popover renders properly despite race condition
-  //   if (!showPopover && isBeingPrompted) {
-  //     setShowPopover(true);
-  //   }
-  // }, [showPopover, isBeingPrompted]);
+  const textWrapRef = useRef(null);
+  const isBeingPrompted =
+    inlineCommentStore.get("promptedEntityKey") === entityKey;
+
+  const hidePrompterAndSilence = (event: SyntheticEvent) => {
+    cleanupStoreAndCloseDisplay({ inlineCommentStore });
+    inlineCommentStore.set("silencedPromptKeys")(
+      new Set([...inlineCommentStore.get("silencedPromptKeys"), entityKey])
+    );
+    inlineCommentStore.set("lastPromptRemovedTime")(Date.now());
+    paperDraftStore.set("editorState")(
+      inlineCommentStore.get("prePromptEditorState")
+    );
+  };
+
+  useClickOutSideEffect({
+    isBeingPrompted,
+    isSilenced: silencedPromptKeys.has(entityKey),
+    onClickOutside: hidePrompterAndSilence,
+    textWrapRef,
+  });
 
   const openCommentThreadDisplay = (event) => {
     event.stopPropagation();
@@ -78,11 +132,12 @@ export default function PaperDraftInlineCommentTextWrapWithSlideButton(
       )}
       id={
         commentThreadID != null
-          ? `inline-comment-${commentThreadID}`
-          : `inline-comment-${entityKey}`
+          ? formatTextWrapID(commentThreadID)
+          : formatTextWrapID(entityKey)
       }
-      key={`Popver-Child-${entityKey}`}
+      key={`InlineCommentTextWrap-${entityKey}`}
       onClick={openCommentThreadDisplay}
+      ref={textWrapRef}
       role="none"
     >
       {children}
