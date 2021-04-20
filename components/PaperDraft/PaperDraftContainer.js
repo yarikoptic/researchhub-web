@@ -1,8 +1,4 @@
-import { emptyFncWithMsg } from "~/config/utils/nullchecks";
-import {
-  getIsReadyForNewInlineComment,
-  getShouldSavePaperSilently,
-} from "./util/PaperDraftUtils";
+import { getIsReadyForNewInlineComment } from "./util/PaperDraftUtils";
 import InlineCommentUnduxStore, {
   cleanupStoreAndCloseDisplay,
 } from "../PaperDraftInlineComment/undux/InlineCommentUnduxStore";
@@ -14,11 +10,11 @@ import {
 import { handleBlockStyleToggle } from "../PaperDraftInlineComment/util/PaperDraftInlineCommentUtil";
 import { INLINE_COMMENT_MAP } from "./util/PaperDraftTextEditorUtil";
 import { paperFetchHook } from "./api/PaperDraftPaperFetch";
+import { useEffectSavePaperDraftSilently } from "./util/useEffectSavePaperDraftSilently";
 import PaperDraft from "./PaperDraft";
 import PaperDraftInlineCommentRelativeWrap from "../PaperDraftInlineComment/PaperDraftInlineCommentRelativeWrap";
 import PaperDraftUnduxStore from "./undux/PaperDraftUnduxStore";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { savePaperSilentlyHook } from "./api/PaperDraftSilentSave";
 
 // Container to fetch documents & convert strings into a disgestable format for PaperDraft.
 export default function PaperDraftContainer({
@@ -71,25 +67,7 @@ export default function PaperDraftContainer({
     [paperId] /* intentionally hard enforcing only on paperID. */
   );
 
-  const shouldSavePaperSilently = getShouldSavePaperSilently({
-    isDraftInEditMode,
-    paperDraftStore,
-  });
-  useEffect(() => {
-    if (shouldSavePaperSilently) {
-      savePaperSilentlyHook({
-        editorState,
-        onError: (error) => emptyFncWithMsg(error),
-        onSuccess: () => {
-          paperDraftStore.set("lastSavePaperTime")(Date.now());
-          paperDraftStore.set("shouldSavePaper")(false);
-          setInitEditorState(editorState);
-        },
-        paperDraftSections,
-        paperId,
-      });
-    }
-  }, [shouldSavePaperSilently]);
+  useEffectSavePaperDraftSilently({ isDraftInEditMode, paperDraftStore });
 
   const isReadyForNewInlineComment = getIsReadyForNewInlineComment({
     editorState,
@@ -133,7 +111,7 @@ export default function PaperDraftContainer({
   );
 
   return (
-    <PaperDraftInlineCommentRelativeWrap>
+    <PaperDraftInlineCommentRelativeWrap key="paper-container">
       <PaperDraft
         textEditorProps={{
           blockStyleFn: getBlockStyleFn,

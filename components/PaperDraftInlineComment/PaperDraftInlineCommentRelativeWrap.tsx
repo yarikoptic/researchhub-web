@@ -1,8 +1,8 @@
 import { css, StyleSheet } from "aphrodite";
 import PaperDraftInlineCommentSlideButton from "./PaperDraftInlineCommentSlideButton";
-import React, { ReactChildren, ReactElement } from "react";
+import React, { ReactElement, ReactNode } from "react";
 
-type Props = { children: ReactChildren };
+type Props = { children: ReactNode };
 
 export default function PaperDraftInlineCommentRelativeWrap({
   children,
