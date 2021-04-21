@@ -10,12 +10,12 @@ import * as Sentry from "@sentry/browser";
 import { Waypoint } from "react-waypoint";
 
 // Components
-import AbstractDraftContainer from "~/components/Paper/AbstractDraft/AbstractDraftContainer";
 import AuthorStatsDropdown from "~/components/Paper/Tabs/AuthorStatsDropdown";
 import DiscussionTab from "~/components/Paper/Tabs/DiscussionTab";
 import Head from "~/components/Head";
 import InlineCommentThreadsDisplayBarWithMediaSize from "~/components/InlineCommentDisplay/InlineCommentThreadsDisplayBar";
 import PaperDraftContainer from "~/components/PaperDraft/PaperDraftContainer";
+import PaperDraftWithCommentUnduxProvider from "~/components/PaperDraft/PaperDraftWithCommentUnduxProvider";
 import PaperFeatureModal from "~/components/Modals/PaperFeatureModal";
 import PaperPageCard from "~/components/PaperPageCard";
 import PaperSections from "~/components/Paper/SideColumn/PaperSections";
@@ -26,6 +26,7 @@ import PaperBanner from "~/components/Paper/PaperBanner.js";
 import PaperTransactionModal from "~/components/Modals/PaperTransactionModal";
 import SummaryTab from "~/components/Paper/Tabs/SummaryTab";
 import TableOfContent from "~/components/PaperDraft/TableOfContent";
+
 // Redux
 import { PaperActions } from "~/redux/paper";
 import { MessageActions } from "~/redux/message";
@@ -512,9 +513,6 @@ const Paper = (props) => {
                 bottomOffset={"95%"}
               >
                 <a name="abstract">
-                  <PaperDraftUnduxStore.Container>
-                    <AbstractDraftContainer />
-                  </PaperDraftUnduxStore.Container>
                   <SummaryTab
                     paperId={paperId}
                     paper={paper}
@@ -545,17 +543,15 @@ const Paper = (props) => {
                     paperDraftExists={paperDraftExists}
                     paperDraftSections={paperDraftSections}
                   />
-                  <PaperDraftUnduxStore.Container>
-                    <PaperDraftContainer
-                      isViewerAllowedToEdit={isModerator}
-                      paperDraftExists={paperDraftExists}
-                      paperDraftSections={paperDraftSections}
-                      paperId={paperId}
-                      setActiveSection={setActiveSection}
-                      setPaperDraftExists={setPaperDraftExists}
-                      setPaperDraftSections={setPaperDraftSections}
-                    />
-                  </PaperDraftUnduxStore.Container>
+                  <PaperDraftContainer
+                    isViewerAllowedToEdit={isModerator}
+                    paperDraftExists={paperDraftExists}
+                    paperDraftSections={paperDraftSections}
+                    paperId={paperId}
+                    setActiveSection={setActiveSection}
+                    setPaperDraftExists={setPaperDraftExists}
+                    setPaperDraftSections={setPaperDraftSections}
+                  />
                 </a>
               </Waypoint>
             </div>
@@ -702,9 +698,9 @@ Paper.getInitialProps = async (ctx) => {
 
 const PaperIndexWithUndux = (props) => {
   return (
-    <InlineCommentUnduxStore.Container>
+    <PaperDraftWithCommentUnduxProvider>
       <Paper {...props} />
-    </InlineCommentUnduxStore.Container>
+    </PaperDraftWithCommentUnduxProvider>
   );
 };
 

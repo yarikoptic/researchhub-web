@@ -8,6 +8,7 @@ import InlineCommentUnduxStore, {
 import InlineCommentThreadCard from "./InlineCommentThreadCard";
 import React, { ReactElement } from "react";
 import { slide as SlideMenu } from "@quantfive/react-burger-menu";
+import { isNullOrUndefined } from "../../config/utils/nullchecks";
 
 type Props = { shouldShowContextTitle?: boolean };
 
@@ -15,10 +16,23 @@ const MEDIA_WIDTH_LIMIT = 1023; /* arbitary iPad size */
 
 export default function InlineCommentThreadsDisplayBarWithMediaSize(
   props: Props
-): ReactElement<"div"> {
+): ReactElement<"div"> | null {
+  const inlineCommentUnduxStore = InlineCommentUnduxStore.useStore();
+  const shouldRender =
+    inlineCommentUnduxStore.get("displayableInlineComments").length > 0;
+
+  if (
+    isNullOrUndefined(typeof window) ||
+    isNullOrUndefined(typeof document) ||
+    !shouldRender
+  ) {
+    return null;
+  }
   const currMediaWidth =
     document.documentElement.clientWidth || document.body.clientWidth;
-  const shouldRenderWithSlide = currMediaWidth <= MEDIA_WIDTH_LIMIT;
+  const shouldRenderWithSlide =
+    shouldRender && currMediaWidth <= MEDIA_WIDTH_LIMIT;
+
   if (shouldRenderWithSlide) {
     return (
       <div className={css(styles.mobile)}>
@@ -200,6 +214,7 @@ const styles = StyleSheet.create({
   },
   inlineSticky: {
     position: "sticky",
+    right: 0,
     top: 40,
   },
   marginLeft8: {
