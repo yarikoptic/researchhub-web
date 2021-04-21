@@ -11,6 +11,7 @@ export default function PaperDraftWithCommentUnduxProvider({
   return (
     <PaperDraftUnduxStore.Container>
       <InlineCommentUnduxStore.Container>
+        <InlineCommentThreadsDisplayBarWithMediaSize />
         {children}
       </InlineCommentUnduxStore.Container>
     </PaperDraftUnduxStore.Container>

@@ -317,7 +317,7 @@ class Editor extends React.Component {
               <button className="ql-blockquote"></button>
               <button className="ql-code-block"></button>
               <button className="ql-strike"></button>
-              <select class="ql-background"></select>
+              <select className="ql-background"></select>
             </span>
             <span className="ql-formats">
               <button className="ql-list" value="ordered" />

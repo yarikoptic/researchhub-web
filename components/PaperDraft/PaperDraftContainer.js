@@ -15,7 +15,6 @@ import PaperDraft from "./PaperDraft";
 import PaperDraftInlineCommentRelativeWrap from "../PaperDraftInlineComment/PaperDraftInlineCommentRelativeWrap";
 import PaperDraftUnduxStore from "./undux/PaperDraftUnduxStore";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import InlineCommentThreadsDisplayBarWithMediaSize from "~/components/InlineCommentDisplay/InlineCommentThreadsDisplayBar";
 
 // Container to fetch documents & convert strings into a disgestable format for PaperDraft.
 export default function PaperDraftContainer({

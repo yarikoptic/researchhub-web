@@ -13,7 +13,6 @@ import { Waypoint } from "react-waypoint";
 import AuthorStatsDropdown from "~/components/Paper/Tabs/AuthorStatsDropdown";
 import DiscussionTab from "~/components/Paper/Tabs/DiscussionTab";
 import Head from "~/components/Head";
-import InlineCommentThreadsDisplayBarWithMediaSize from "~/components/InlineCommentDisplay/InlineCommentThreadsDisplayBar";
 import PaperDraftContainer from "~/components/PaperDraft/PaperDraftContainer";
 import PaperDraftWithCommentUnduxProvider from "~/components/PaperDraft/PaperDraftWithCommentUnduxProvider";
 import PaperFeatureModal from "~/components/Modals/PaperFeatureModal";
@@ -34,10 +33,6 @@ import { AuthActions } from "~/redux/auth";
 import VoteActions from "~/redux/vote";
 import { LimitationsActions } from "~/redux/limitations";
 import { BulletActions } from "~/redux/bullets";
-
-// Undux
-import InlineCommentUnduxStore from "~/components/PaperDraftInlineComment/undux/InlineCommentUnduxStore";
-import PaperDraftUnduxStore from "~/components/PaperDraft/undux/PaperDraftUnduxStore";
 
 // Config
 import { UPVOTE, DOWNVOTE } from "~/config/constants";
@@ -420,9 +415,7 @@ const Paper = (props) => {
   function onSectionEnter(index) {
     activeTab !== index && setActiveTab(index);
   }
-  const inlineCommentUnduxStore = InlineCommentUnduxStore.useStore();
-  const shouldShowInlineComments =
-    inlineCommentUnduxStore.get("displayableInlineComments").length > 0;
+
   return (
     <div>
       <PaperBanner paper={paper} loadingPaper={loadingPaper} />
@@ -525,36 +518,38 @@ const Paper = (props) => {
                 </a>
               </Waypoint>
             </div>
-            <div
-              className={css(
-                styles.paperPageContainer,
-                styles.bottom,
-                styles.noMarginLeft,
-                !paperDraftExists && styles.hide
-              )}
-            >
-              <Waypoint
-                onEnter={() => onSectionEnter(2)}
-                topOffset={40}
-                bottomOffset={"95%"}
+            <PaperDraftWithCommentUnduxProvider>
+              <div
+                className={css(
+                  styles.paperPageContainer,
+                  styles.bottom,
+                  styles.noMarginLeft,
+                  !paperDraftExists && styles.hide
+                )}
               >
-                <a name="paper">
-                  <TableOfContent
-                    paperDraftExists={paperDraftExists}
-                    paperDraftSections={paperDraftSections}
-                  />
-                  <PaperDraftContainer
-                    isViewerAllowedToEdit={isModerator}
-                    paperDraftExists={paperDraftExists}
-                    paperDraftSections={paperDraftSections}
-                    paperId={paperId}
-                    setActiveSection={setActiveSection}
-                    setPaperDraftExists={setPaperDraftExists}
-                    setPaperDraftSections={setPaperDraftSections}
-                  />
-                </a>
-              </Waypoint>
-            </div>
+                <Waypoint
+                  onEnter={() => onSectionEnter(2)}
+                  topOffset={40}
+                  bottomOffset={"95%"}
+                >
+                  <a name="paper">
+                    <TableOfContent
+                      paperDraftExists={paperDraftExists}
+                      paperDraftSections={paperDraftSections}
+                    />
+                    <PaperDraftContainer
+                      isViewerAllowedToEdit={isModerator}
+                      paperDraftExists={paperDraftExists}
+                      paperDraftSections={paperDraftSections}
+                      paperId={paperId}
+                      setActiveSection={setActiveSection}
+                      setPaperDraftExists={setPaperDraftExists}
+                      setPaperDraftSections={setPaperDraftSections}
+                    />
+                  </a>
+                </Waypoint>
+              </div>
+            </PaperDraftWithCommentUnduxProvider>
             <Waypoint
               onEnter={() => onSectionEnter(3)}
               topOffset={40}
@@ -589,26 +584,22 @@ const Paper = (props) => {
             </Waypoint>
           </div>
           <div className={css(styles.sidebar)}>
-            {shouldShowInlineComments ? (
-              <InlineCommentThreadsDisplayBarWithMediaSize isShown />
-            ) : (
-              <React.Fragment>
-                <PaperSideColumn
-                  authors={getAllAuthors()}
-                  paper={paper}
-                  hubs={paper.hubs}
-                  paperId={paperId}
-                />
-                <PaperSections
-                  activeTab={activeTab} // for paper page tabs
-                  setActiveTab={setActiveTab}
-                  activeSection={activeSection} // for paper draft sections
-                  setActiveSection={setActiveSection}
-                  paperDraftSections={paperDraftSections}
-                  paperDraftExists={paperDraftExists}
-                />
-              </React.Fragment>
-            )}
+            <React.Fragment>
+              <PaperSideColumn
+                authors={getAllAuthors()}
+                paper={paper}
+                hubs={paper.hubs}
+                paperId={paperId}
+              />
+              <PaperSections
+                activeTab={activeTab} // for paper page tabs
+                setActiveTab={setActiveTab}
+                activeSection={activeSection} // for paper draft sections
+                setActiveSection={setActiveSection}
+                paperDraftSections={paperDraftSections}
+                paperDraftExists={paperDraftExists}
+              />
+            </React.Fragment>
           </div>
         </div>
       </div>
@@ -696,14 +687,6 @@ Paper.getInitialProps = async (ctx) => {
   return props;
 };
 
-const PaperIndexWithUndux = (props) => {
-  return (
-    <PaperDraftWithCommentUnduxProvider>
-      <Paper {...props} />
-    </PaperDraftWithCommentUnduxProvider>
-  );
-};
-
 const styles = StyleSheet.create({
   componentWrapperStyles: {
     width: "100%",
@@ -769,7 +752,7 @@ const styles = StyleSheet.create({
   main: {
     display: "table-cell",
     boxSizing: "border-box",
-    position: "relative",
+    // position: "relative",
     "@media only screen and (max-width: 767px)": {
       width: "100%",
     },
@@ -1107,4 +1090,4 @@ const mapDispatchToProps = {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(PaperIndexWithUndux);
+)(Paper);

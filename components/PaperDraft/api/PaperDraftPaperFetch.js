@@ -17,7 +17,10 @@ export function paperFetchHook({
   const handleFetchSuccess = (data) => {
     const onFormatSuccess = ({ sections }) => {
       /* logical ordering */
-      setPaperDraftSections(sections);
+      console.warn("SECTIONS: ", sections);
+      if (sections != null) {
+        setPaperDraftSections(sections);
+      }
       setPaperDraftExists(true);
       setIsFetching(false);
     };

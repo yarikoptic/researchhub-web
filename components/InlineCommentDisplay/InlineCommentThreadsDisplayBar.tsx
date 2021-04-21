@@ -7,7 +7,7 @@ import InlineCommentUnduxStore, {
 } from "../PaperDraftInlineComment/undux/InlineCommentUnduxStore";
 import InlineCommentThreadCard from "./InlineCommentThreadCard";
 import React, { ReactElement } from "react";
-import { slide as SlideMenu } from "@quantfive/react-burger-menu";
+import { slide as SlideMenu, menu as Menu } from "@quantfive/react-burger-menu";
 import { isNullOrUndefined } from "../../config/utils/nullchecks";
 
 type Props = { shouldShowContextTitle?: boolean };
@@ -28,38 +28,27 @@ export default function InlineCommentThreadsDisplayBarWithMediaSize(
   ) {
     return null;
   }
+
   const currMediaWidth =
     document.documentElement.clientWidth || document.body.clientWidth;
-  const shouldRenderWithSlide =
+  const shouldRenderAsOverlay =
     shouldRender && currMediaWidth <= MEDIA_WIDTH_LIMIT;
 
-  if (shouldRenderWithSlide) {
-    return (
-      <div className={css(styles.mobile)}>
-        <SlideMenu
-          right
-          width={"100%"}
-          isOpen={true}
-          styles={burgerMenuStyle}
-          customBurgerIcon={false}
-        >
-          <InlineCommentThreadsDisplayBar
-            {...props}
-            shouldShowContextTitle={true}
-          />
-        </SlideMenu>
-      </div>
-    );
-  } else {
-    return (
-      <div className={css(styles.inlineSticky)}>
-        <InlineCommentThreadsDisplayBar
-          {...props}
-          shouldShowContextTitle={false}
-        />
-      </div>
-    );
-  }
+  return (
+    <SlideMenu
+      right
+      width={"100%"}
+      styles={
+        shouldRenderAsOverlay ? burgerMenuAsOverlayStyle : burgerMenuStyle
+      }
+      customBurgerIcon={false}
+    >
+      <InlineCommentThreadsDisplayBar
+        {...props}
+        shouldShowContextTitle={true}
+      />
+    </SlideMenu>
+  );
 }
 
 function InlineCommentThreadsDisplayBar({
@@ -108,11 +97,11 @@ const burgerMenuStyle = {
     background: "#a90000",
   },
   bmCrossButton: {
-    height: "26px",
-    width: "26px",
     color: "#FFF",
     display: "none",
+    height: "26px",
     visibility: "hidden",
+    width: "26px",
   },
   bmCross: {
     background: "#bdc3c7",
@@ -120,11 +109,12 @@ const burgerMenuStyle = {
     visibility: "hidden",
   },
   bmMenuWrap: {
+    overflowY: "auto",
     position: "fixed",
     top: 0,
+    width: "34%",
+    maxWidth: "530px",
     zIndex: 10,
-    overflowY: "auto",
-    width: "85%",
   },
   bmMenu: {
     background: "#fff",
@@ -136,36 +126,72 @@ const burgerMenuStyle = {
     fill: "#373a47",
   },
   bmItemList: {
+    alignItems: "flex-start",
+    borderTop: "1px solid rgba(255,255,255,.2)",
     color: "#b8b7ad",
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-start",
-    alignItems: "flex-start",
     overflow: "auto",
-    borderTop: "1px solid rgba(255,255,255,.2)",
     ":focus": {
       outline: "none",
     },
   },
   bmItem: {
+    color: "#FFF",
     display: "inline-block",
     margin: "15px 0 15px 0",
-    color: "#FFF",
     ":focus": {
       outline: "none",
     },
   },
   bmOverlay: {
+    background: "transparent",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: 40,
+    width: "100%",
+    zIndex: 9,
+  },
+};
+
+const burgerMenuAsOverlayStyle = {
+  ...burgerMenuStyle,
+  bmMenuWrap: {
+    overflowY: "auto",
+    position: "fixed",
+    top: 0,
+    width: "85%",
+    zIndex: 10,
+  },
+  bmOverlay: {
     background: "rgba(0, 0, 0, 0.3)",
+    bottom: 0,
     left: 0,
     right: 0,
     top: 0,
     zIndex: 9,
-    bottom: 0,
   },
 };
 
 const styles = StyleSheet.create({
+  displaybarOverlay: {
+    backgroundColor: "yellow",
+    bottom: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+    width: 470,
+    zIndex: 12,
+    minHeight: "100vh",
+  },
+  displaybarRelative: {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+    minHeight: "100vh",
+  },
   backButton: {
     alignItems: "center",
     color: colors.BLACK(0.5),
@@ -211,11 +237,6 @@ const styles = StyleSheet.create({
     "@media only screen and (max-width: 1023px)": {
       width: "100%",
     },
-  },
-  inlineSticky: {
-    position: "sticky",
-    right: 0,
-    top: 40,
   },
   marginLeft8: {
     marginLeft: 8,
