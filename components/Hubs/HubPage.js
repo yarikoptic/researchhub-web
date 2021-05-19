@@ -6,6 +6,7 @@ import ReactPlaceholder from "react-placeholder/lib";
 import Ripples from "react-ripples";
 import * as Sentry from "@sentry/browser";
 import Router from "next/router";
+import OnVisible from "../OnVisible";
 
 // Component
 import FeedList from "./FeedList";
@@ -776,6 +777,12 @@ class HubPage extends React.Component {
                           />
                         ))}
                       </div>
+                      <OnVisible
+                        topOffset={10}
+                        width="100%"
+                        height={10}
+                        onVisible={() => console.warn("Hi this is onvisible")}
+                      />
                       {!sampleFeed && this.renderLoadMoreButton()}
                     </div>
                   ) : (

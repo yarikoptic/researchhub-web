@@ -1,5 +1,6 @@
 import React, { ReactElement, useRef, useEffect, RefObject } from "react";
 import { isNullOrUndefined, nullthrows } from "../config/utils/nullchecks";
+import dynamic from "next/dynamic";
 
 type Props = {
   height: number | string;
@@ -17,19 +18,32 @@ const useEffectOnVisible = ({
   onVisible: Function;
   topOffset: number;
 }): void => {
-  if (isNullOrUndefined(element)) {
-    return;
+  let document: Document | null = null,
+    currElement: HTMLDivElement | null = null,
+    pageYOffset: number = 1000;
+  const isReady = !(
+    isNullOrUndefined(element) || isNullOrUndefined((element || {}).current)
+  );
+  if (isReady) {
+    currElement = nullthrows(
+      nullthrows(element).current,
+      "OnVisibleRefCurrent is null"
+    );
+    document = currElement.ownerDocument;
+    pageYOffset = document.defaultView.pageYOffset;
   }
-  var rect = nullthrows(
-    nullthrows(element).current,
-    "OnVisibleRefCurrent is null"
-  ).getBoundingClientRect();
-  const isElWithinViewPort = rect.top + topOffset >= 0 && rect.left >= 0;
   useEffect((): void => {
+    if (!isReady) {
+      return;
+    }
+    var rect = nullthrows(currElement).getBoundingClientRect();
+    console.warn("TOP: ", rect.top - topOffset);
+    console.warn("client: ", pageYOffset);
+    const isElWithinViewPort = rect.top + topOffset <= pageYOffset;
     if (isElWithinViewPort) {
       onVisible();
     }
-  });
+  }, [pageYOffset, isReady]);
 };
 
 export default function OnVisible({
@@ -40,5 +54,7 @@ export default function OnVisible({
 }: Props): ReactElement<"div"> {
   const elementRef = useRef<HTMLDivElement>(null);
   useEffectOnVisible({ element: elementRef, onVisible, topOffset });
-  return <div ref={elementRef} style={{ height, width }} />;
+  return (
+    <div ref={elementRef} style={{ height, width, backgroundColor: "red" }} />
+  );
 }
